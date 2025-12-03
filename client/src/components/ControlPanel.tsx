@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Mic, MicOff, MonitorPlay, RefreshCw } from "lucide-react";
+import { Mic, MicOff, MonitorPlay, RefreshCw, Barcode } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ControlPanelProps {
@@ -12,6 +12,14 @@ interface ControlPanelProps {
   status: 'idle' | 'searching' | 'ready' | 'live';
   hasAudio: boolean;
   hasImage: boolean;
+  barcodeInput: string;
+  onBarcodeChange: (value: string) => void;
+  onBarcodeSubmit: () => void;
+  isScannerActive: boolean;
+  onToggleScanner: () => void;
+  alwaysListening: boolean;
+  onToggleAlwaysListening: () => void;
+  barcodeInputRef: React.RefObject<HTMLInputElement | null>;
 }
 
 export function ControlPanel({ 
@@ -23,7 +31,15 @@ export function ControlPanel({
   onPushToLive,
   status,
   hasAudio,
-  hasImage
+  hasImage,
+  barcodeInput,
+  onBarcodeChange,
+  onBarcodeSubmit,
+  isScannerActive,
+  onToggleScanner,
+  alwaysListening,
+  onToggleAlwaysListening,
+  barcodeInputRef
 }: ControlPanelProps) {
   return (
     <div className="w-full max-w-md bg-sidebar border border-sidebar-border p-4 rounded-lg shadow-2xl">
@@ -52,7 +68,7 @@ export function ControlPanel({
       </div>
 
       {/* Action Grid */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-3 gap-3">
         {/* Audio Capture Button */}
         <Button 
           variant={isListening ? "destructive" : "default"} 
@@ -80,7 +96,51 @@ export function ControlPanel({
           {hasImage && <span className="absolute top-1 right-1 text-green-500">✓</span>}
           <div className="absolute bottom-0 left-0 w-full h-1 bg-current opacity-20" />
         </Button>
+
+        {/* Barcode Scanner Button */}
+        <Button 
+          variant="default"
+          className={cn("h-16 text-sm font-bold font-['Chakra_Petch'] relative overflow-hidden",
+            isScannerActive ? "border-blue-500/50 bg-blue-500/10" : ""
+          )}
+          onClick={onToggleScanner}
+        >
+          <Barcode className="mr-1 h-4 w-4" />
+          SCAN BARCODE
+          {isScannerActive && <span className="absolute top-1 right-1 text-blue-500 animate-pulse">●</span>}
+          <div className="absolute bottom-0 left-0 w-full h-1 bg-current opacity-20" />
+        </Button>
       </div>
+
+      {/* Barcode Input Field (appears when scanner is active or always listening) */}
+      {(isScannerActive || alwaysListening) && (
+        <div className="mt-3 space-y-2">
+          <input
+            ref={barcodeInputRef}
+            type="text"
+            value={barcodeInput}
+            onChange={(e) => onBarcodeChange(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                onBarcodeSubmit();
+              }
+            }}
+            placeholder="Scan or type UPC/GTIN..."
+            className="w-full px-3 py-2 bg-black/40 border border-border/50 rounded-sm font-mono text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50"
+            autoFocus
+          />
+          <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer hover:text-foreground transition-colors">
+            <input
+              type="checkbox"
+              checked={alwaysListening}
+              onChange={(e) => onToggleAlwaysListening()}
+              className="w-3 h-3 rounded border-border/50 bg-black/40 checked:bg-primary checked:border-primary"
+            />
+            <span className="font-mono">Always Listening</span>
+          </label>
+        </div>
+      )}
       
       {/* Push Live Button */}
       <div className="mt-3">

@@ -59,3 +59,10 @@
 - [x] CRITICAL BUG: Screenshot preview feature is working
 - [x] Investigated - found ScrapingBee returns url_image not images[0]
 - [x] Fixed by using url_image field and filtering sponsored products
+
+- [x] Add "SCAN BARCODE" button to Control Deck
+- [x] Add "Always Listening" toggle for continuous barcode scanning
+- [x] Create barcode input field that auto-focuses when activated
+- [x] Auto-submit search when Enter is pressed (from Bluetooth scanner)
+- [x] Test with manual UPC input (simulate scanner)
+- [x] Add visual feedback when scanner mode is active (blue pulsing dot)

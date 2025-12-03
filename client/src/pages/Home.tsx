@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useVoiceRecognition } from "@/hooks/useVoiceRecognition";
 import { useCamera } from "@/hooks/useCamera";
 import { ProductCard } from "@/components/ProductCard";
@@ -32,6 +32,10 @@ export default function Home() {
     extractedFromVision?: string;
     finalQuery?: string;
   }>({});
+  const [barcodeInput, setBarcodeInput] = useState<string>("");
+  const [isScannerActive, setIsScannerActive] = useState(false);
+  const [alwaysListening, setAlwaysListening] = useState(false);
+  const barcodeInputRef = useRef<HTMLInputElement>(null);
 
   const searchMutation = trpc.amazon.search.useMutation();
 
@@ -82,6 +86,40 @@ export default function Home() {
       localStorage.setItem('obs_status', 'idle');
     }
   };
+
+  const handleToggleScanner = () => {
+    setIsScannerActive(!isScannerActive);
+    if (!isScannerActive) {
+      // Auto-focus the input when activating
+      setTimeout(() => barcodeInputRef.current?.focus(), 100);
+    }
+  };
+
+  const handleBarcodeSubmit = () => {
+    if (barcodeInput.trim()) {
+      console.log('[Barcode] Scanned:', barcodeInput);
+      handleSearch(barcodeInput, null);
+      setBarcodeInput("");
+      if (!alwaysListening) {
+        setIsScannerActive(false);
+      }
+    }
+  };
+
+  const handleToggleAlwaysListening = () => {
+    setAlwaysListening(!alwaysListening);
+    if (!alwaysListening) {
+      // When enabling always listening, auto-focus the input
+      setTimeout(() => barcodeInputRef.current?.focus(), 100);
+    }
+  };
+
+  // Auto-focus barcode input when always listening is enabled
+  useEffect(() => {
+    if (alwaysListening && barcodeInputRef.current) {
+      barcodeInputRef.current.focus();
+    }
+  }, [alwaysListening]);
 
   const handleCaptureAudio = () => {
     if (isListening) {
@@ -134,6 +172,8 @@ export default function Home() {
     setAudioTranscript("");
     setHasAudio(false);
     setHasImage(false);
+    setBarcodeInput("");
+    setIsScannerActive(false);
     setExtractionData({});
     setStatus('idle');
     setIsAnalyzing(false);
@@ -242,6 +282,14 @@ export default function Home() {
             status={status}
             hasAudio={hasAudio}
             hasImage={hasImage}
+            barcodeInput={barcodeInput}
+            onBarcodeChange={setBarcodeInput}
+            onBarcodeSubmit={handleBarcodeSubmit}
+            isScannerActive={isScannerActive}
+            onToggleScanner={handleToggleScanner}
+            alwaysListening={alwaysListening}
+            onToggleAlwaysListening={handleToggleAlwaysListening}
+            barcodeInputRef={barcodeInputRef}
           />
 
           {/* Camera Setup */}
