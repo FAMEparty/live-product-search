@@ -55,7 +55,7 @@ export function ControlPanel({
           onClick={onToggleListen}
         >
           {isListening ? <MicOff className="mr-2 h-5 w-5" /> : <Mic className="mr-2 h-5 w-5" />}
-          {isListening ? "STOP LISTENING" : "PUSH TO TALK"}
+          {isListening ? "STOP & PROCESS" : "CAPTURE + LISTEN"}
           
           {/* Button Tech Decoration */}
           <div className="absolute bottom-0 left-0 w-full h-1 bg-current opacity-20" />

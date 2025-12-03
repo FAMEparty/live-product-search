@@ -3,6 +3,9 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import { z } from "zod";
+import { extractProductName } from "./services/productExtractor";
+import { searchAmazonProduct } from "./services/amazonScraper";
+import { analyzeProductImage } from "./services/visionAnalyzer";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -18,23 +21,52 @@ export const appRouter = router({
     }),
   }),
 
-  // Amazon product search
+  // Amazon product search with hybrid AI extraction (vision + voice) and real scraping
   amazon: router({
     search: publicProcedure
-      .input(z.object({ query: z.string() }))
+      .input(z.object({ 
+        query: z.string(),
+        image: z.string().optional() // Base64 encoded image
+      }))
       .mutation(async ({ input }) => {
-        const { query } = input;
+        const { query, image } = input;
         
-        // For now, return a formatted Amazon search URL
-        // In the future, we can scrape the page or use an API
-        const searchUrl = `https://www.amazon.com/s?k=${encodeURIComponent(query)}`;
+        let extractedFromVoice = "";
+        let extractedFromVision = "";
+        let finalProductName = "";
         
-        // Mock data for now (replace with real scraping later)
+        // Step 1: Extract from voice (if provided)
+        if (query && query.trim().length > 0) {
+          extractedFromVoice = await extractProductName(query);
+        }
+        
+        // Step 2: Extract from image (if provided)
+        if (image) {
+          extractedFromVision = await analyzeProductImage(image);
+        }
+        
+        // Step 3: Combine results (vision takes priority if both exist)
+        if (extractedFromVision && extractedFromVoice) {
+          // Hybrid: combine both for maximum accuracy
+          finalProductName = `${extractedFromVision} ${extractedFromVoice}`.trim();
+        } else if (extractedFromVision) {
+          finalProductName = extractedFromVision;
+        } else if (extractedFromVoice) {
+          finalProductName = extractedFromVoice;
+        } else {
+          finalProductName = query; // Fallback to original
+        }
+        
+        // Step 4: Use ScrapingBee to fetch real Amazon product data
+        const productData = await searchAmazonProduct(finalProductName);
+        
+        // Return complete product info with AI extraction metadata
         return {
-          title: `Amazon: ${query}`,
-          price: "$129.99",
-          image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=2070&auto=format&fit=crop",
-          url: searchUrl
+          ...productData,
+          originalQuery: query,
+          extractedFromVoice,
+          extractedFromVision,
+          finalQuery: finalProductName
         };
       }),
   }),
