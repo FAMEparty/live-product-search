@@ -8,19 +8,24 @@ import { trpc } from "@/lib/trpc";
 
 export default function Home() {
   const { isListening, transcript, startListening, stopListening } = useVoiceRecognition();
-  const { devices, selectedDeviceId, setSelectedDeviceId, videoRef, captureFrame, error: cameraError, hasCamera } = useCamera();
+  const { devices, selectedDeviceId, setSelectedDeviceId, videoRef, captureFrame, error: cameraError, hasCamera, isEnabled, enableCamera } = useCamera();
   
   const [status, setStatus] = useState<'idle' | 'searching' | 'ready' | 'live'>('idle');
-  const [product, setProduct] = useState<{ 
-    title: string; 
-    price: string; 
-    image?: string; 
-    url?: string;
+  const [products, setProducts] = useState<Array<{
+    title: string;
+    price: string;
+    image: string;
+    url: string;
+    asin?: string;
+  }>>([]);
+  const [selectedProductIndex, setSelectedProductIndex] = useState(0);
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [extractionData, setExtractionData] = useState<{
     originalQuery?: string;
     extractedFromVoice?: string;
     extractedFromVision?: string;
     finalQuery?: string;
-  } | null>(null);
+  }>({});
 
   const searchMutation = trpc.amazon.search.useMutation();
 
@@ -39,9 +44,17 @@ export default function Home() {
         query,
         image: capturedImage || undefined
       });
-      setProduct(result);
+      setProducts(result.products);
+      setSelectedProductIndex(0);
+      setCapturedImage(result.capturedImage || null);
+      setExtractionData({
+        originalQuery: result.originalQuery,
+        extractedFromVoice: result.extractedFromVoice,
+        extractedFromVision: result.extractedFromVision,
+        finalQuery: result.finalQuery,
+      });
       setStatus('ready');
-      localStorage.setItem('obs_product_data', JSON.stringify(result));
+      localStorage.setItem('obs_product_data', JSON.stringify(result.products[0]));
       localStorage.setItem('obs_status', 'ready');
     } catch (error) {
       console.error("Search failed", error);
@@ -64,7 +77,10 @@ export default function Home() {
       }
     } else {
       // Start fresh capture + listen session
-      setProduct(null);
+      setProducts([]);
+      setSelectedProductIndex(0);
+      setCapturedImage(null);
+      setExtractionData({});
       setStatus('idle');
       startListening();
     }
@@ -78,7 +94,10 @@ export default function Home() {
   };
 
   const handleReset = () => {
-    setProduct(null);
+    setProducts([]);
+    setSelectedProductIndex(0);
+    setCapturedImage(null);
+    setExtractionData({});
     setStatus('idle');
     stopListening();
     localStorage.removeItem('obs_product_data');
@@ -102,12 +121,55 @@ export default function Home() {
           {/* This is the component OBS will capture */}
           <div className="border-2 border-dashed border-primary/30 p-4 rounded-lg bg-black/20">
             <ProductCard 
-              title={product?.title || ""} 
-              price={product?.price || ""} 
-              image={product?.image}
+              title={products[selectedProductIndex]?.title || ""} 
+              price={products[selectedProductIndex]?.price || ""} 
+              image={products[selectedProductIndex]?.image}
               status={status}
             />
           </div>
+          
+          {/* Product Selection (if multiple results) */}
+          {products.length > 1 && (
+            <div className="bg-card/50 border border-border p-4 rounded-sm">
+              <h3 className="font-['Chakra_Petch'] font-bold text-sm text-foreground mb-3">SELECT BEST MATCH:</h3>
+              <div className="grid grid-cols-3 gap-2">
+                {products.slice(0, 3).map((prod, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      setSelectedProductIndex(idx);
+                      localStorage.setItem('obs_product_data', JSON.stringify(prod));
+                    }}
+                    className={`p-2 border rounded-sm transition-all ${
+                      selectedProductIndex === idx 
+                        ? 'border-primary bg-primary/20' 
+                        : 'border-border hover:border-primary/50'
+                    }`}
+                  >
+                    <img 
+                      src={prod.image} 
+                      alt={prod.title} 
+                      className="w-full aspect-square object-contain mb-2 bg-white rounded"
+                    />
+                    <p className="text-xs font-mono text-foreground/70 line-clamp-2">{prod.title}</p>
+                    <p className="text-xs font-bold text-primary mt-1">{prod.price}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {/* Captured Image Preview */}
+          {capturedImage && (
+            <div className="bg-card/50 border border-border p-4 rounded-sm">
+              <h3 className="font-['Chakra_Petch'] font-bold text-sm text-foreground mb-3">📸 CAPTURED IMAGE:</h3>
+              <img 
+                src={capturedImage} 
+                alt="Captured product" 
+                className="w-full rounded border border-primary/30"
+              />
+            </div>
+          )}
           
           <p className="text-xs font-mono text-muted-foreground mt-2">
             * Configure OBS Browser Source to crop to this area.
@@ -131,7 +193,7 @@ export default function Home() {
           />
 
           {/* Camera Setup */}
-          {hasCamera && (
+          {isEnabled ? (
             <CameraSelector
               devices={devices}
               selectedDeviceId={selectedDeviceId}
@@ -139,35 +201,54 @@ export default function Home() {
               videoRef={videoRef}
               error={cameraError}
             />
+          ) : (
+            <div className="bg-card/50 border border-border p-4 rounded-sm">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-4 h-4 text-primary">📷</div>
+                <h3 className="font-['Chakra_Petch'] font-bold text-sm text-foreground">CAMERA SETUP</h3>
+              </div>
+              <p className="text-xs font-mono text-muted-foreground mb-3">
+                Enable camera access to capture product images for hybrid AI recognition.
+              </p>
+              <button
+                onClick={enableCamera}
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-['Chakra_Petch'] font-bold py-2 px-4 rounded-sm text-sm"
+              >
+                ENABLE CAMERA
+              </button>
+              {cameraError && (
+                <p className="text-xs text-destructive font-mono mt-2">{cameraError}</p>
+              )}
+            </div>
           )}
 
           {/* AI Extraction Debug Info */}
-          {product && (product.extractedFromVoice || product.extractedFromVision) && (
+          {(extractionData.extractedFromVoice || extractionData.extractedFromVision) && (
             <div className="bg-blue-950/30 border border-blue-500/30 p-3 rounded-sm text-sm">
               <h3 className="font-bold text-blue-400 mb-2 font-mono text-xs">🤖 AI EXTRACTION:</h3>
               <div className="space-y-2 font-mono text-xs">
-                {product.originalQuery && (
+                {extractionData.originalQuery && (
                   <div>
                     <span className="text-muted-foreground">You said:</span>
-                    <p className="text-foreground/70 italic mt-1">" {product.originalQuery} "</p>
+                    <p className="text-foreground/70 italic mt-1">" {extractionData.originalQuery} "</p>
                   </div>
                 )}
-                {product.extractedFromVoice && (
+                {extractionData.extractedFromVoice && (
                   <div>
                     <span className="text-green-400">🎤 Voice extracted:</span>
-                    <p className="text-green-300 font-bold mt-1">{product.extractedFromVoice}</p>
+                    <p className="text-green-300 font-bold mt-1">{extractionData.extractedFromVoice}</p>
                   </div>
                 )}
-                {product.extractedFromVision && (
+                {extractionData.extractedFromVision && (
                   <div>
                     <span className="text-purple-400">📷 Vision extracted:</span>
-                    <p className="text-purple-300 font-bold mt-1">{product.extractedFromVision}</p>
+                    <p className="text-purple-300 font-bold mt-1">{extractionData.extractedFromVision}</p>
                   </div>
                 )}
-                {product.finalQuery && (
+                {extractionData.finalQuery && (
                   <div>
                     <span className="text-blue-400">🔍 Final search:</span>
-                    <p className="text-blue-300 font-bold mt-1">{product.finalQuery}</p>
+                    <p className="text-blue-300 font-bold mt-1">{extractionData.finalQuery}</p>
                   </div>
                 )}
               </div>

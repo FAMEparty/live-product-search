@@ -18,3 +18,11 @@
 - [x] Implement hybrid analysis combining vision + voice results
 - [ ] Update Stream Deck webhook to support image capture
 - [ ] Test hybrid vision + voice workflow end-to-end
+- [ ] Debug camera capture - verify camera permissions and image capture works
+- [ ] Test AI extraction accuracy - ensure voice and vision extract correct product names
+- [ ] Fix Amazon search results - verify ScrapingBee returns correct products
+- [ ] Add better error handling and user feedback for failed searches
+- [x] Fix product image URLs from ScrapingBee (currently showing wrong/generic images)
+- [x] Add captured image preview to show what the camera saw
+- [x] Implement top 3 product selection UI so user can choose the best match
+- [ ] Add visual feedback (flash/confirmation) when camera captures an image

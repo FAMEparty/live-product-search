@@ -4,7 +4,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import { extractProductName } from "./services/productExtractor";
-import { searchAmazonProduct } from "./services/amazonScraper";
+import { searchAmazonProduct, searchAmazonProducts } from "./services/amazonScraper";
 import { analyzeProductImage } from "./services/visionAnalyzer";
 
 export const appRouter = router({
@@ -57,16 +57,17 @@ export const appRouter = router({
           finalProductName = query; // Fallback to original
         }
         
-        // Step 4: Use ScrapingBee to fetch real Amazon product data
-        const productData = await searchAmazonProduct(finalProductName);
+        // Step 4: Use ScrapingBee to fetch multiple Amazon product options
+        const products = await searchAmazonProducts(finalProductName);
         
-        // Return complete product info with AI extraction metadata
+        // Return top 3 products with AI extraction metadata
         return {
-          ...productData,
+          products: products.slice(0, 3),
           originalQuery: query,
           extractedFromVoice,
           extractedFromVision,
-          finalQuery: finalProductName
+          finalQuery: finalProductName,
+          capturedImage: image, // Return the captured image for preview
         };
       }),
   }),

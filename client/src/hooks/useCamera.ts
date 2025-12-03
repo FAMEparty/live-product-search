@@ -10,36 +10,35 @@ export function useCamera() {
   const [selectedDeviceId, setSelectedDeviceId] = useState<string>("");
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [error, setError] = useState<string>("");
+  const [isEnabled, setIsEnabled] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  // Get list of available cameras
-  useEffect(() => {
-    async function getDevices() {
-      try {
-        // Request permissions first
-        await navigator.mediaDevices.getUserMedia({ video: true });
-        
-        const deviceList = await navigator.mediaDevices.enumerateDevices();
-        const videoDevices = deviceList
-          .filter((device) => device.kind === "videoinput")
-          .map((device) => ({
-            deviceId: device.deviceId,
-            label: device.label || `Camera ${device.deviceId.substring(0, 8)}`,
-          }));
+  // Manual camera enable function
+  const enableCamera = async () => {
+    try {
+      // Request permissions
+      const tempStream = await navigator.mediaDevices.getUserMedia({ video: true });
+      tempStream.getTracks().forEach(track => track.stop()); // Stop temp stream
+      
+      const deviceList = await navigator.mediaDevices.enumerateDevices();
+      const videoDevices = deviceList
+        .filter((device) => device.kind === "videoinput")
+        .map((device) => ({
+          deviceId: device.deviceId,
+          label: device.label || `Camera ${device.deviceId.substring(0, 8)}`,
+        }));
 
-        setDevices(videoDevices);
-        
-        // Auto-select first device
-        if (videoDevices.length > 0 && !selectedDeviceId) {
-          setSelectedDeviceId(videoDevices[0].deviceId);
-        }
-      } catch (err: any) {
-        setError("Failed to access cameras: " + err.message);
+      setDevices(videoDevices);
+      setIsEnabled(true);
+      
+      // Auto-select first device
+      if (videoDevices.length > 0) {
+        setSelectedDeviceId(videoDevices[0].deviceId);
       }
+    } catch (err: any) {
+      setError("Failed to access cameras: " + err.message);
     }
-
-    getDevices();
-  }, []);
+  };
 
   // Start camera stream when device is selected
   useEffect(() => {
@@ -101,5 +100,7 @@ export function useCamera() {
     captureFrame,
     error,
     hasCamera: devices.length > 0,
+    isEnabled,
+    enableCamera,
   };
 }
