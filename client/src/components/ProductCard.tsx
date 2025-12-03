@@ -10,7 +10,10 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ title, price, image, status, className }: ProductCardProps) {
-  console.log('ProductCard render:', { title, price, image, status });
+  // Sanitize image URL to handle malformed characters
+  const sanitizedImage = image ? encodeURI(decodeURI(image).replace(/[^\x00-\x7F]/g, '')) : null;
+  console.log('[ProductCard] Original image:', image);
+  console.log('[ProductCard] Sanitized image:', sanitizedImage);
   return (
     <div className={cn("relative w-full max-w-md overflow-hidden rounded-sm bg-card/90 border border-border backdrop-blur-sm", className)}>
       {/* Cyber-Industrial Frame Elements */}
@@ -34,8 +37,8 @@ export function ProductCard({ title, price, image, status, className }: ProductC
       <div className="p-4 flex gap-4">
         {/* Product Image Area */}
         <div className="w-24 h-24 bg-black/50 rounded-sm border border-border/50 flex items-center justify-center overflow-hidden shrink-0">
-          {image ? (
-            <img src={image} alt={title} className="w-full h-full object-contain" />
+          {sanitizedImage ? (
+            <img src={sanitizedImage} alt={title} className="w-full h-full object-contain" />
           ) : (
             <div className="text-xs text-muted-foreground font-mono text-center p-2">
               {status === 'searching' ? "SCANNING..." : "NO SIGNAL"}

@@ -47,3 +47,10 @@
 - [x] Auto-trigger search when both audio AND image are captured
 - [x] Add visual indicators showing which captures are ready (audio ✓, image ✓)
 - [ ] Update Stream Deck webhook endpoints to support separate audio/image capture
+- [x] Fix ProductCard image display - sanitize malformed URLs from ScrapingBee
+- [x] Add error handling for invalid image URLs
+- [ ] Test that main ProductCard shows product thumbnails correctly
+
+- [ ] FIX URGENT: Captured image preview not displaying (was working before)
+- [ ] FIX URGENT: Product thumbnails showing red Nike icon instead of actual ScrapingBee images
+- [ ] FIX URGENT: Main ProductCard still not showing product images
