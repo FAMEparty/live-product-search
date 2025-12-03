@@ -26,3 +26,9 @@
 - [x] Add captured image preview to show what the camera saw
 - [x] Implement top 3 product selection UI so user can choose the best match
 - [ ] Add visual feedback (flash/confirmation) when camera captures an image
+- [x] Fix ProductCard component to display actual product image (added logging to debug)
+- [x] Add captured camera image preview panel (added to right column)
+- [x] Add visual feedback when CAPTURE + LISTEN is pressed (flash animation overlay)
+- [x] Add audio/visual indicator showing camera is capturing and microphone is listening
+- [x] Fix AI extraction accuracy - improved OpenAI prompt to preserve model numbers
+- [ ] Debug ScrapingBee search results - ensure it returns relevant products for the extracted query

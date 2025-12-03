@@ -20,6 +20,7 @@ export default function Home() {
   }>>([]);
   const [selectedProductIndex, setSelectedProductIndex] = useState(0);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [isCapturing, setIsCapturing] = useState(false);
   const [extractionData, setExtractionData] = useState<{
     originalQuery?: string;
     extractedFromVoice?: string;
@@ -44,6 +45,9 @@ export default function Home() {
         query,
         image: capturedImage || undefined
       });
+      console.log('Search result:', result);
+      console.log('Products:', result.products);
+      console.log('First product image:', result.products[0]?.image);
       setProducts(result.products);
       setSelectedProductIndex(0);
       setCapturedImage(result.capturedImage || null);
@@ -68,12 +72,19 @@ export default function Home() {
       // Stop listening and process
       stopListening();
       
+      // Visual feedback: capturing
+      setIsCapturing(true);
+      
       // Capture image from camera
-      const capturedImage = captureFrame();
+      const captured = captureFrame();
+      setCapturedImage(captured);
+      
+      // Flash feedback
+      setTimeout(() => setIsCapturing(false), 500);
       
       // Search with both voice transcript and image
-      if (transcript || capturedImage) {
-        handleSearch(transcript, capturedImage);
+      if (transcript || captured) {
+        handleSearch(transcript, captured);
       }
     } else {
       // Start fresh capture + listen session
@@ -159,25 +170,17 @@ export default function Home() {
             </div>
           )}
           
-          {/* Captured Image Preview */}
-          {capturedImage && (
-            <div className="bg-card/50 border border-border p-4 rounded-sm">
-              <h3 className="font-['Chakra_Petch'] font-bold text-sm text-foreground mb-3">📸 CAPTURED IMAGE:</h3>
-              <img 
-                src={capturedImage} 
-                alt="Captured product" 
-                className="w-full rounded border border-primary/30"
-              />
-            </div>
-          )}
-          
           <p className="text-xs font-mono text-muted-foreground mt-2">
             * Configure OBS Browser Source to crop to this area.
           </p>
         </div>
 
         {/* Right Column: The Control Deck (What you see) */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 relative">
+          {/* Flash Feedback Overlay */}
+          {isCapturing && (
+            <div className="absolute inset-0 bg-white/30 z-50 rounded-sm animate-pulse pointer-events-none" />
+          )}
            <div className="flex items-center gap-2 mb-2">
             <div className="w-3 h-3 bg-muted-foreground rounded-sm" />
             <h2 className="text-lg font-['Chakra_Petch'] font-bold text-muted-foreground">OPERATOR CONSOLE</h2>
@@ -219,6 +222,22 @@ export default function Home() {
               {cameraError && (
                 <p className="text-xs text-destructive font-mono mt-2">{cameraError}</p>
               )}
+            </div>
+          )}
+
+          {/* Captured Image Preview */}
+          {capturedImage && (
+            <div className="bg-purple-950/30 border border-purple-500/30 p-3 rounded-sm">
+              <h3 className="font-['Chakra_Petch'] font-bold text-sm text-purple-400 mb-3 flex items-center gap-2">
+                📸 CAPTURED IMAGE
+                <span className="text-[10px] font-mono text-purple-300 bg-purple-500/20 px-2 py-0.5 rounded">ANALYZED</span>
+              </h3>
+              <img 
+                src={capturedImage} 
+                alt="Captured product" 
+                className="w-full rounded border border-purple-500/30 bg-black/50"
+              />
+              <p className="text-xs font-mono text-purple-300 mt-2">This image was analyzed by AI vision</p>
             </div>
           )}
 
