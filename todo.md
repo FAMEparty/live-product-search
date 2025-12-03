@@ -72,3 +72,8 @@
 - [x] FEATURE: Make image capture trigger search immediately without audio
 - [x] FEATURE: Better error messages when AI extraction fails (suggests alternatives)
 - [x] FEATURE: Skip voice extraction when query is empty (prevents GPT errors)
+
+- [x] UI: Shorten button labels - "AUDIO", "IMAGE", "BARCODE"
+- [x] UI: Move Camera Setup above Control Deck
+- [x] UI: Clear transcript when Reset System is pressed
+- [x] UI: Keep camera enabled after reset (don't disable camera)

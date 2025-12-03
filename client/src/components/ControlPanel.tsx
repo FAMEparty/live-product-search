@@ -79,7 +79,7 @@ export function ControlPanel({
           onClick={onCaptureAudio}
         >
           {isListening ? <MicOff className="mr-2 h-5 w-5" /> : <Mic className="mr-2 h-5 w-5" />}
-          {isListening ? "STOP AUDIO" : "CAPTURE AUDIO"}
+          {isListening ? "STOP" : "AUDIO"}
           {hasAudio && <span className="absolute top-1 right-1 text-green-500">✓</span>}
           <div className="absolute bottom-0 left-0 w-full h-1 bg-current opacity-20" />
         </Button>
@@ -92,7 +92,7 @@ export function ControlPanel({
           )}
           onClick={onCaptureImage}
         >
-          📸 CAPTURE IMAGE
+          📸 IMAGE
           {hasImage && <span className="absolute top-1 right-1 text-green-500">✓</span>}
           <div className="absolute bottom-0 left-0 w-full h-1 bg-current opacity-20" />
         </Button>
@@ -106,7 +106,7 @@ export function ControlPanel({
           onClick={onToggleScanner}
         >
           <Barcode className="mr-1 h-4 w-4" />
-          SCAN BARCODE
+          BARCODE
           {isScannerActive && <span className="absolute top-1 right-1 text-blue-500 animate-pulse">●</span>}
           <div className="absolute bottom-0 left-0 w-full h-1 bg-current opacity-20" />
         </Button>

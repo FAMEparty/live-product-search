@@ -65,10 +65,15 @@ export function useVoiceRecognition() {
     }
   }, [recognition, state.isListening]);
 
+  const resetTranscript = useCallback(() => {
+    setState(prev => ({ ...prev, transcript: '' }));
+  }, []);
+
   return {
     ...state,
     startListening,
     stopListening,
+    resetTranscript,
     hasSupport: !!recognition
   };
 }

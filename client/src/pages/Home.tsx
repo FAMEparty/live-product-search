@@ -7,7 +7,7 @@ import { CameraSelector } from "@/components/CameraSelector";
 import { trpc } from "@/lib/trpc";
 
 export default function Home() {
-  const { isListening, transcript, startListening, stopListening } = useVoiceRecognition();
+  const { isListening, transcript, startListening, stopListening, resetTranscript } = useVoiceRecognition();
   const { devices, selectedDeviceId, setSelectedDeviceId, videoRef, captureFrame, error: cameraError, hasCamera, isEnabled, enableCamera } = useCamera();
   
   const [status, setStatus] = useState<'idle' | 'searching' | 'ready' | 'live'>('idle');
@@ -170,6 +170,7 @@ export default function Home() {
   };
   
   const handleReset = () => {
+    // Clear all product and capture data
     setProducts([]);
     setSelectedProductIndex(0);
     setCapturedImage(null);
@@ -181,9 +182,16 @@ export default function Home() {
     setExtractionData({});
     setStatus('idle');
     setIsAnalyzing(false);
+    
+    // Clear transcript display
+    resetTranscript();
+    
+    // Stop listening if active
     if (isListening) {
       stopListening();
     }
+    
+    // Note: Camera remains enabled after reset
     localStorage.setItem('obs_status', 'idle');
   };
 
@@ -275,26 +283,6 @@ export default function Home() {
             <div className="w-3 h-3 bg-muted-foreground rounded-sm" />
             <h2 className="text-lg font-['Chakra_Petch'] font-bold text-muted-foreground">OPERATOR CONSOLE</h2>
           </div>
-          
-          <ControlPanel 
-            isListening={isListening}
-            transcript={transcript}
-            onCaptureAudio={handleCaptureAudio}
-            onCaptureImage={handleCaptureImage}
-            onReset={handleReset}
-            onPushToLive={handlePushToLive}
-            status={status}
-            hasAudio={hasAudio}
-            hasImage={hasImage}
-            barcodeInput={barcodeInput}
-            onBarcodeChange={setBarcodeInput}
-            onBarcodeSubmit={handleBarcodeSubmit}
-            isScannerActive={isScannerActive}
-            onToggleScanner={handleToggleScanner}
-            alwaysListening={alwaysListening}
-            onToggleAlwaysListening={handleToggleAlwaysListening}
-            barcodeInputRef={barcodeInputRef}
-          />
 
           {/* Camera Setup */}
           {isEnabled ? (
@@ -320,11 +308,28 @@ export default function Home() {
               >
                 ENABLE CAMERA
               </button>
-              {cameraError && (
-                <p className="text-xs text-destructive font-mono mt-2">{cameraError}</p>
-              )}
             </div>
           )}
+          
+          <ControlPanel 
+            isListening={isListening}
+            transcript={transcript}
+            onCaptureAudio={handleCaptureAudio}
+            onCaptureImage={handleCaptureImage}
+            onReset={handleReset}
+            onPushToLive={handlePushToLive}
+            status={status}
+            hasAudio={hasAudio}
+            hasImage={hasImage}
+            barcodeInput={barcodeInput}
+            onBarcodeChange={setBarcodeInput}
+            onBarcodeSubmit={handleBarcodeSubmit}
+            isScannerActive={isScannerActive}
+            onToggleScanner={handleToggleScanner}
+            alwaysListening={alwaysListening}
+            onToggleAlwaysListening={handleToggleAlwaysListening}
+            barcodeInputRef={barcodeInputRef}
+          />
 
           {/* Captured Image Preview */}
           {capturedImage && (
