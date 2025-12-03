@@ -10,6 +10,7 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ title, price, image, status, className }: ProductCardProps) {
+  console.log('ProductCard render:', { title, price, image, status });
   return (
     <div className={cn("relative w-full max-w-md overflow-hidden rounded-sm bg-card/90 border border-border backdrop-blur-sm", className)}>
       {/* Cyber-Industrial Frame Elements */}

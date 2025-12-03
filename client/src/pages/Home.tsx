@@ -21,6 +21,8 @@ export default function Home() {
   const [selectedProductIndex, setSelectedProductIndex] = useState(0);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [showFlash, setShowFlash] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [extractionData, setExtractionData] = useState<{
     originalQuery?: string;
     extractedFromVoice?: string;
@@ -58,11 +60,13 @@ export default function Home() {
         finalQuery: result.finalQuery,
       });
       setStatus('ready');
+      setIsAnalyzing(false);
       localStorage.setItem('obs_product_data', JSON.stringify(result.products[0]));
       localStorage.setItem('obs_status', 'ready');
     } catch (error) {
       console.error("Search failed", error);
       setStatus('idle');
+      setIsAnalyzing(false);
       localStorage.setItem('obs_status', 'idle');
     }
   };
@@ -72,15 +76,17 @@ export default function Home() {
       // Stop listening and process
       stopListening();
       
-      // Visual feedback: capturing
-      setIsCapturing(true);
+      // FULL SCREEN FLASH EFFECT
+      setShowFlash(true);
+      setTimeout(() => setShowFlash(false), 200);
       
       // Capture image from camera
       const captured = captureFrame();
+      console.log('Captured image:', captured ? 'YES (length: ' + captured.length + ')' : 'NO');
       setCapturedImage(captured);
       
-      // Flash feedback
-      setTimeout(() => setIsCapturing(false), 500);
+      // Show analyzing overlay
+      setIsAnalyzing(true);
       
       // Search with both voice transcript and image
       if (transcript || captured) {
@@ -93,6 +99,7 @@ export default function Home() {
       setCapturedImage(null);
       setExtractionData({});
       setStatus('idle');
+      setIsAnalyzing(false);
       startListening();
     }
   };
@@ -117,6 +124,24 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[url('/images/cyber-grid-bg.png')] bg-cover bg-center flex flex-col items-center justify-center p-8 relative">
+      {/* FULL SCREEN CAMERA FLASH */}
+      {showFlash && (
+        <div className="fixed inset-0 bg-white z-[9999] animate-pulse" />
+      )}
+      
+      {/* ANALYZING OVERLAY */}
+      {isAnalyzing && (
+        <div className="fixed inset-0 bg-black/70 z-[9998] flex items-center justify-center">
+          <div className="bg-primary/20 border-2 border-primary p-8 rounded-sm">
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+              <h2 className="font-['Chakra_Petch'] font-bold text-2xl text-primary">ANALYZING IMAGE...</h2>
+              <p className="font-mono text-sm text-primary/70">AI is processing your product</p>
+            </div>
+          </div>
+        </div>
+      )}
+      
       {/* Overlay Background (Simulates OBS View) */}
       <div className="absolute inset-0 bg-background/80 backdrop-blur-[2px]" />
 

@@ -32,3 +32,12 @@
 - [x] Add audio/visual indicator showing camera is capturing and microphone is listening
 - [x] Fix AI extraction accuracy - improved OpenAI prompt to preserve model numbers
 - [ ] Debug ScrapingBee search results - ensure it returns relevant products for the extracted query
+- [ ] Add OBVIOUS camera flash effect (full-screen white flash)
+- [ ] Show captured image preview IMMEDIATELY after capture
+- [ ] Add "ANALYZING IMAGE..." processing overlay with animation
+- [ ] Fix ProductCard main image not displaying (thumbnails work but main card shows generic icon)
+- [ ] Add visual indicator showing camera is active and ready to capture
+- [x] Debug ProductCard image prop - added console logging to trace data flow
+- [x] Add full-screen camera flash effect when capturing (bright white flash)
+- [x] Show captured camera frame immediately in preview panel (purple box in operator console)
+- [x] Add "ANALYZING..." overlay during AI processing (full-screen with spinner)
