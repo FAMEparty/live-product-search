@@ -59,5 +59,29 @@ Be precise and include model numbers when visible.`,
 
   const extractedName = response.choices[0].message.content?.trim() || "";
   console.log('[Vision] Extracted product name:', extractedName);
+  
+  // Detect if GPT-4 Vision failed to identify the product
+  const failureIndicators = [
+    "i can't",
+    "i cannot",
+    "unable to",
+    "not able to",
+    "can't determine",
+    "cannot determine",
+    "not visible",
+    "unclear",
+    "too blurry",
+    "no product",
+    "sorry"
+  ];
+  
+  const lowerExtracted = extractedName.toLowerCase();
+  const isFailed = failureIndicators.some(indicator => lowerExtracted.includes(indicator));
+  
+  if (isFailed) {
+    console.log('[Vision] Failed to identify product - returning empty string');
+    return "";
+  }
+  
   return extractedName;
 }

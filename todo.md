@@ -87,3 +87,8 @@
 - [x] Keyboard Shortcuts: Ctrl+Shift+L - PUSH LIVE (push to OBS)
 - [x] Keyboard Shortcuts: Ctrl+Shift+R - RESET (reset system)
 - [x] Create Stream Deck configuration guide with all hotkey mappings
+
+- [x] BUG: Vision extraction returns explanatory text instead of empty string when it fails
+- [x] FIX: Detect when GPT-4 Vision can't identify product (returns "I can't determine...")
+- [x] FIX: Show user-friendly error message instead of searching with failed extraction text
+- [x] FIX: Suggest alternatives (voice, barcode, clearer image) when vision fails

@@ -130,6 +130,16 @@ export default function Home() {
       setStatus('idle');
       setIsAnalyzing(false);
       localStorage.setItem('obs_status', 'idle');
+      
+      // Show user-friendly error message
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      if (errorMessage.includes('Could not identify product')) {
+        // Vision/voice extraction failed - show helpful message
+        alert('❌ No product identified\n\nPlease try:\n• Speaking the product name clearly (AUDIO)\n• Showing product packaging to camera (IMAGE)\n• Scanning the barcode (BARCODE)');
+      } else {
+        // Other error - show generic message
+        alert(`Search failed: ${errorMessage}`);
+      }
     }
   };
 
