@@ -46,6 +46,52 @@ export default function Home() {
     }
   }, [isListening, transcript, status]);
 
+  // Keyboard shortcuts for Stream Deck integration
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Check for Ctrl+Shift (or Cmd+Shift on Mac)
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
+        switch(e.key.toUpperCase()) {
+          case 'A':
+            e.preventDefault();
+            handleCaptureAudio();
+            break;
+          case 'I':
+            e.preventDefault();
+            handleCaptureImage();
+            break;
+          case 'B':
+            e.preventDefault();
+            handleToggleScanner();
+            break;
+          case '1':
+            e.preventDefault();
+            if (products.length >= 1) setSelectedProductIndex(0);
+            break;
+          case '2':
+            e.preventDefault();
+            if (products.length >= 2) setSelectedProductIndex(1);
+            break;
+          case '3':
+            e.preventDefault();
+            if (products.length >= 3) setSelectedProductIndex(2);
+            break;
+          case 'L':
+            e.preventDefault();
+            handlePushToLive();
+            break;
+          case 'R':
+            e.preventDefault();
+            handleReset();
+            break;
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [products, isListening]);
+
   const handleSearch = async (query: string, capturedImage: string | null) => {
     setStatus('searching');
     localStorage.setItem('obs_status', 'searching');

@@ -77,3 +77,13 @@
 - [x] UI: Move Camera Setup above Control Deck
 - [x] UI: Clear transcript when Reset System is pressed
 - [x] UI: Keep camera enabled after reset (don't disable camera)
+
+- [x] Keyboard Shortcuts: Ctrl+Shift+A - AUDIO (toggle audio capture)
+- [x] Keyboard Shortcuts: Ctrl+Shift+I - IMAGE (capture image)
+- [x] Keyboard Shortcuts: Ctrl+Shift+B - BARCODE (toggle barcode scanner)
+- [x] Keyboard Shortcuts: Ctrl+Shift+1 - PRODUCT 1 (select first product)
+- [x] Keyboard Shortcuts: Ctrl+Shift+2 - PRODUCT 2 (select second product)
+- [x] Keyboard Shortcuts: Ctrl+Shift+3 - PRODUCT 3 (select third product)
+- [x] Keyboard Shortcuts: Ctrl+Shift+L - PUSH LIVE (push to OBS)
+- [x] Keyboard Shortcuts: Ctrl+Shift+R - RESET (reset system)
+- [x] Create Stream Deck configuration guide with all hotkey mappings
