@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { useVoiceRecognition } from "@/hooks/useVoiceRecognition";
 import { useCamera } from "@/hooks/useCamera";
+import { useProductHistory } from "@/hooks/useProductHistory";
 import { ProductCard } from "@/components/ProductCard";
 import { ControlPanel } from "@/components/ControlPanel";
 import { CameraSelector } from "@/components/CameraSelector";
+import { ProductHistory } from "@/components/ProductHistory";
 import { trpc } from "@/lib/trpc";
 
 export default function Home() {
@@ -35,7 +37,10 @@ export default function Home() {
   const [barcodeInput, setBarcodeInput] = useState<string>("");
   const [isScannerActive, setIsScannerActive] = useState(false);
   const [alwaysListening, setAlwaysListening] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const barcodeInputRef = useRef<HTMLInputElement>(null);
+  
+  const { addToHistory } = useProductHistory();
 
   const searchMutation = trpc.amazon.search.useMutation();
 
@@ -125,6 +130,11 @@ export default function Home() {
       setIsAnalyzing(false);
       localStorage.setItem('obs_product_data', JSON.stringify(result.products[0]));
       localStorage.setItem('obs_status', 'ready');
+      
+      // Add first product to history
+      if (result.products.length > 0) {
+        addToHistory(result.products[0], result.finalQuery || query);
+      }
     } catch (error) {
       console.error("Search failed", error);
       setStatus('idle');
@@ -449,6 +459,28 @@ export default function Home() {
           </div>
         </div>
       </div>
+      
+      {/* History Button - Bottom Right Corner */}
+      <button
+        onClick={() => setIsHistoryOpen(true)}
+        className="fixed bottom-6 right-6 bg-primary hover:bg-primary/90 text-primary-foreground font-['Chakra_Petch'] font-bold py-3 px-5 rounded-sm shadow-lg border-2 border-primary/50 flex items-center gap-2 z-50 transition-transform hover:scale-105"
+      >
+        <span className="text-xl">📜</span>
+        HISTORY
+      </button>
+      
+      {/* Product History Modal */}
+      <ProductHistory
+        isOpen={isHistoryOpen}
+        onClose={() => setIsHistoryOpen(false)}
+        onPushLive={(product) => {
+          setProducts([product]);
+          setSelectedProductIndex(0);
+          setStatus('ready');
+          localStorage.setItem('obs_product_data', JSON.stringify(product));
+          localStorage.setItem('obs_status', 'ready');
+        }}
+      />
     </div>
   );
 }

@@ -92,3 +92,12 @@
 - [x] FIX: Detect when GPT-4 Vision can't identify product (returns "I can't determine...")
 - [x] FIX: Show user-friendly error message instead of searching with failed extraction text
 - [x] FIX: Suggest alternatives (voice, barcode, clearer image) when vision fails
+
+- [x] Product History: Create "📜 HISTORY" button in bottom-right corner
+- [x] Product History: Modal overlay with scrollable list of past searches
+- [x] Product History: Show product image, title, price, date/timestamp for each item
+- [x] Product History: "PUSH LIVE" button next to each history item
+- [x] Product History: "CLEAR ALL HISTORY" button at top of modal
+- [x] Product History: Lazy loading (load 20 items initially, more on scroll)
+- [x] Product History: Save to localStorage (persists across sessions)
+- [x] Product History: Auto-save every successful search to history
