@@ -152,9 +152,13 @@ export default function Home() {
     setCapturedImage(captured);
     setHasImage(true);
     
-    // Auto-trigger search if audio is also ready
+    // Auto-trigger search immediately (works standalone or with audio)
     if (hasAudio && audioTranscript) {
+      // Hybrid mode: use both audio and image
       handleSearch(audioTranscript, captured);
+    } else {
+      // Image-only mode: use vision extraction
+      handleSearch('', captured);
     }
   };
 

@@ -39,9 +39,13 @@ export const appRouter = router({
         let extractedFromVision = "";
         let finalProductName = "";
         
-        // Step 1: Extract from voice (if provided)
+        // Step 1: Extract from voice (if provided and not empty)
         if (query && query.trim().length > 0) {
+          console.log('[Router] Extracting from voice:', query);
           extractedFromVoice = await extractProductName(query);
+          console.log('[Router] Voice extraction result:', extractedFromVoice);
+        } else {
+          console.log('[Router] No voice input, skipping voice extraction');
         }
         
         // Step 2: Extract from image (if provided)
@@ -57,8 +61,11 @@ export const appRouter = router({
           finalProductName = extractedFromVision;
         } else if (extractedFromVoice) {
           finalProductName = extractedFromVoice;
+        } else if (query && query.trim().length > 0) {
+          finalProductName = query; // Fallback to original query
         } else {
-          finalProductName = query; // Fallback to original
+          // No product name could be extracted
+          throw new Error('Could not identify product. Please try: 1) Speaking the product name clearly, 2) Showing product packaging to camera, or 3) Scanning the barcode');
         }
         
         // Step 4: Use ScrapingBee to fetch multiple Amazon product options

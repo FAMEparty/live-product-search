@@ -66,3 +66,9 @@
 - [x] Auto-submit search when Enter is pressed (from Bluetooth scanner)
 - [x] Test with manual UPC input (simulate scanner)
 - [x] Add visual feedback when scanner mode is active (blue pulsing dot)
+
+- [x] BUG: Image capture requires audio - should work standalone
+- [x] BUG: AI vision extraction fails with "Unable to provide an output" error
+- [x] FEATURE: Make image capture trigger search immediately without audio
+- [x] FEATURE: Better error messages when AI extraction fails (suggests alternatives)
+- [x] FEATURE: Skip voice extraction when query is empty (prevents GPT errors)
