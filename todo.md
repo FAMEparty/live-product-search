@@ -54,3 +54,8 @@
 - [ ] FIX URGENT: Captured image preview not displaying (was working before)
 - [ ] FIX URGENT: Product thumbnails showing red Nike icon instead of actual ScrapingBee images
 - [ ] FIX URGENT: Main ProductCard still not showing product images
+
+- [x] CRITICAL BUG: Product thumbnails still showing red Nike icon - FIXED
+- [x] CRITICAL BUG: Screenshot preview feature is working
+- [x] Investigated - found ScrapingBee returns url_image not images[0]
+- [x] Fixed by using url_image field and filtering sponsored products

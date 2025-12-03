@@ -50,9 +50,18 @@ export default function Home() {
         query,
         image: capturedImage || undefined
       });
-      console.log('Search result:', result);
-      console.log('Products:', result.products);
-      console.log('First product image:', result.products[0]?.image);
+      console.log('=== SEARCH RESULT ===');
+      console.log('Full result:', result);
+      console.log('Products array:', result.products);
+      console.log('Products length:', result.products?.length);
+      result.products?.forEach((p, i) => {
+        console.log(`Product ${i}:`, {
+          title: p.title,
+          price: p.price,
+          image: p.image,
+          imageType: typeof p.image
+        });
+      });
       setProducts(result.products);
       setSelectedProductIndex(0);
       setCapturedImage(result.capturedImage || null);
