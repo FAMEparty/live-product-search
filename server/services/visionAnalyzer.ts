@@ -7,8 +7,17 @@ const openai = new OpenAI({
 });
 
 export async function analyzeProductImage(base64Image: string): Promise<string> {
+  console.log('[Vision] Analyzing product image...');
+  console.log('[Vision] Image data length:', base64Image?.length || 0);
+  
+  if (!base64Image || base64Image.length === 0) {
+    console.log('[Vision] No image provided, skipping vision analysis');
+    return "";
+  }
+  
   // Remove data URL prefix if present
   const imageData = base64Image.replace(/^data:image\/\w+;base64,/, "");
+  console.log('[Vision] Cleaned image data length:', imageData.length);
 
   const response = await openai.chat.completions.create({
     model: "gpt-4o", // GPT-4 Vision model
@@ -49,5 +58,6 @@ Be precise and include model numbers when visible.`,
   });
 
   const extractedName = response.choices[0].message.content?.trim() || "";
+  console.log('[Vision] Extracted product name:', extractedName);
   return extractedName;
 }

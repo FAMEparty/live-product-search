@@ -41,3 +41,9 @@
 - [x] Add full-screen camera flash effect when capturing (bright white flash)
 - [x] Show captured camera frame immediately in preview panel (purple box in operator console)
 - [x] Add "ANALYZING..." overlay during AI processing (full-screen with spinner)
+- [x] Split "CAPTURE + LISTEN" into two separate buttons: "CAPTURE AUDIO" and "CAPTURE IMAGE"
+- [x] Implement "CAPTURE AUDIO" button for voice recording only
+- [x] Implement "CAPTURE IMAGE" button with white flash for camera snapshot only
+- [x] Auto-trigger search when both audio AND image are captured
+- [x] Add visual indicators showing which captures are ready (audio ✓, image ✓)
+- [ ] Update Stream Deck webhook endpoints to support separate audio/image capture

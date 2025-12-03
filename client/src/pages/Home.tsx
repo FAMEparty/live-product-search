@@ -20,9 +20,12 @@ export default function Home() {
   }>>([]);
   const [selectedProductIndex, setSelectedProductIndex] = useState(0);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [audioTranscript, setAudioTranscript] = useState<string>("");
   const [isCapturing, setIsCapturing] = useState(false);
   const [showFlash, setShowFlash] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [hasAudio, setHasAudio] = useState(false);
+  const [hasImage, setHasImage] = useState(false);
   const [extractionData, setExtractionData] = useState<{
     originalQuery?: string;
     extractedFromVoice?: string;
@@ -71,36 +74,40 @@ export default function Home() {
     }
   };
 
-  const handleCaptureAndListen = () => {
+  const handleCaptureAudio = () => {
     if (isListening) {
-      // Stop listening and process
+      // Stop listening and save transcript
       stopListening();
+      setAudioTranscript(transcript);
+      setHasAudio(true);
+      console.log('[Audio] Captured:', transcript);
       
-      // FULL SCREEN FLASH EFFECT
-      setShowFlash(true);
-      setTimeout(() => setShowFlash(false), 200);
-      
-      // Capture image from camera
-      const captured = captureFrame();
-      console.log('Captured image:', captured ? 'YES (length: ' + captured.length + ')' : 'NO');
-      setCapturedImage(captured);
-      
-      // Show analyzing overlay
-      setIsAnalyzing(true);
-      
-      // Search with both voice transcript and image
-      if (transcript || captured) {
-        handleSearch(transcript, captured);
+      // Auto-trigger search if image is also ready
+      if (hasImage && capturedImage) {
+        handleSearch(transcript, capturedImage);
       }
     } else {
-      // Start fresh capture + listen session
-      setProducts([]);
-      setSelectedProductIndex(0);
-      setCapturedImage(null);
-      setExtractionData({});
-      setStatus('idle');
-      setIsAnalyzing(false);
+      // Start voice recording
+      setAudioTranscript("");
+      setHasAudio(false);
       startListening();
+    }
+  };
+  
+  const handleCaptureImage = () => {
+    // FULL SCREEN FLASH EFFECT
+    setShowFlash(true);
+    setTimeout(() => setShowFlash(false), 200);
+    
+    // Capture image from camera
+    const captured = captureFrame();
+    console.log('[Image] Captured:', captured ? 'YES (length: ' + captured.length + ')' : 'NO');
+    setCapturedImage(captured);
+    setHasImage(true);
+    
+    // Auto-trigger search if audio is also ready
+    if (hasAudio && audioTranscript) {
+      handleSearch(audioTranscript, captured);
     }
   };
 
@@ -110,15 +117,20 @@ export default function Home() {
     // Here we would trigger the OBS scene switch via WebSocket
     console.log("Switching OBS Scene...");
   };
-
+  
   const handleReset = () => {
     setProducts([]);
     setSelectedProductIndex(0);
     setCapturedImage(null);
+    setAudioTranscript("");
+    setHasAudio(false);
+    setHasImage(false);
     setExtractionData({});
     setStatus('idle');
-    stopListening();
-    localStorage.removeItem('obs_product_data');
+    setIsAnalyzing(false);
+    if (isListening) {
+      stopListening();
+    }
     localStorage.setItem('obs_status', 'idle');
   };
 
@@ -214,10 +226,13 @@ export default function Home() {
           <ControlPanel 
             isListening={isListening}
             transcript={transcript}
-            onToggleListen={handleCaptureAndListen}
+            onCaptureAudio={handleCaptureAudio}
+            onCaptureImage={handleCaptureImage}
             onReset={handleReset}
             onPushToLive={handlePushToLive}
             status={status}
+            hasAudio={hasAudio}
+            hasImage={hasImage}
           />
 
           {/* Camera Setup */}

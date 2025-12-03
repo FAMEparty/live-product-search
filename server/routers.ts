@@ -31,6 +31,10 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         const { query, image } = input;
         
+        console.log('[Router] Search request received');
+        console.log('[Router] Query:', query);
+        console.log('[Router] Image provided:', !!image, 'Length:', image?.length || 0);
+        
         let extractedFromVoice = "";
         let extractedFromVision = "";
         let finalProductName = "";
